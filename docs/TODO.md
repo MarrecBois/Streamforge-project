@@ -41,7 +41,7 @@ This document outlines the specific tasks that need to be implemented to complet
 ### API Understanding
 
 - [ ] Review the existing backend implementation
-- [ ] Understand how the filtering API works
+- [x] Understand how the filtering API works
 - [ ] Understand the match score calculation algorithm
 
 ### Match Score Algorithm Optimization
