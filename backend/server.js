@@ -94,10 +94,10 @@ app.post('/api/match', (req, res) => {
 // Match score calculation algorithm
 function calculateMatchScore(creator, campaignSettings) {
   // Have different weights for each factor based on the campaign objective. Default is 'Brand Awareness'
-  const objective = campaignSettings.campaignObjective ?? 'Brand Awareness';
+  const objective = campaignSettings.campaignObjective ?? 'brand_awareness';
 
   const weightsByObjective = {
-    'Brand Awareness': {
+    'brand_awareness': {
       budgetFit: 0.10,
       contentRelevance: 0.20,
       audienceFit: 0.20,
@@ -106,7 +106,7 @@ function calculateMatchScore(creator, campaignSettings) {
       regionFit: 0.15,
       contentFormatRelevance: 0.10
     },
-    'Product Launch': {
+    'product_launch': {
       budgetFit: 0.15,
       contentRelevance: 0.25,
       audienceFit: 0.15,
@@ -115,7 +115,7 @@ function calculateMatchScore(creator, campaignSettings) {
       regionFit: 0.10,
       contentFormatRelevance: 0.05
     },
-    'Community Engagement': {
+    'community_engagement': {
       budgetFit: 0.10,
       contentRelevance: 0.20,
       audienceFit: 0.25,
@@ -124,7 +124,7 @@ function calculateMatchScore(creator, campaignSettings) {
       regionFit: 0.05,
       contentFormatRelevance: 0.05
     },
-    'Conversions & Sales': {
+    'conversion': {
       budgetFit: 0.20,
       contentRelevance: 0.20,
       audienceFit: 0.20,
