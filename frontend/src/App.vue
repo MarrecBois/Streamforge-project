@@ -76,7 +76,8 @@ async function updateCampaignSettings(newSettings) {
     const response = await axios.post('http://localhost:3000/api/match', campaignSettings.value);
     creators.value = response.data;
   } catch (error) {
-    console.error('Error updating match scores:', error);
+    //console.error('Error updating match scores:', error);
+    console.error('Error updating match scores:', error.response?.data || error.message || error);
   }
 }
 
@@ -96,7 +97,7 @@ function resetFilters() {
 onMounted(async () => {
   try {
     // Fetch creators from API
-    const response = await axios.get('http://localhost:3000/api/creators');
+    const response = await axios.post('http://localhost:3000/api/match', campaignSettings.value);
     creators.value = response.data;
   } catch (error) {
     console.error('Error fetching creators:', error);
@@ -108,10 +109,10 @@ onMounted(async () => {
   <div class="flex flex-col min-h-screen">
     <AppHeader />
     
-    <main class="flex-grow container mx-auto p-4">
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <div class="flex flex-col md:flex-row gap-6">
         <!-- Sidebar with filters -->
-        <div class="w-full md:w-1/4">
+        <div class="w-full md:w-1/3 lg:w-1/4">
           <FilterSidebar 
             :platforms="availablePlatforms"
             :categories="availableCategories"
@@ -124,7 +125,7 @@ onMounted(async () => {
         </div>
         
         <!-- Main content area -->
-        <div class="w-full md:w-3/4">
+        <div class="w-full md:w-2/3 lg:w-3/4">
           <div class="mb-4 flex justify-between items-center">
             <h2 class="text-xl font-bold">Creators ({{ filteredCreators.length }})</h2>
             <div class="flex gap-2">
@@ -140,7 +141,7 @@ onMounted(async () => {
           </div>
           
           <!-- Creator cards grid -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <CreatorCard 
               v-for="creator in sortedCreators" 
               :key="creator.id" 
