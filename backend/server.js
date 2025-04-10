@@ -93,21 +93,58 @@ app.post('/api/match', (req, res) => {
 
 // Match score calculation algorithm
 function calculateMatchScore(creator, campaignSettings) {
-  // These weights balance the importance of different factors
-  const weights = {
-    budgetFit: 0.25,
-    contentRelevance: 0.30,
-    audienceFit: 0.20,
-    engagementQuality: 0.15,
-    previousPerformance: 0.10
+  // Have different weights for each factor based on the campaign objective. Default is 'Brand Awareness'
+  const objective = campaignSettings.campaignObjective ?? 'Brand Awareness';
+
+  const weightsByObjective = {
+    'Brand Awareness': {
+      budgetFit: 0.10,
+      contentRelevance: 0.20,
+      audienceFit: 0.20,
+      engagementQuality: 0.15,
+      previousPerformance: 0.10,
+      regionFit: 0.15,
+      contentFormatRelevance: 0.10
+    },
+    'Product Launch': {
+      budgetFit: 0.15,
+      contentRelevance: 0.25,
+      audienceFit: 0.15,
+      engagementQuality: 0.15,
+      previousPerformance: 0.15,
+      regionFit: 0.10,
+      contentFormatRelevance: 0.05
+    },
+    'Community Engagement': {
+      budgetFit: 0.10,
+      contentRelevance: 0.20,
+      audienceFit: 0.25,
+      engagementQuality: 0.25,
+      previousPerformance: 0.10,
+      regionFit: 0.05,
+      contentFormatRelevance: 0.05
+    },
+    'Conversions & Sales': {
+      budgetFit: 0.20,
+      contentRelevance: 0.20,
+      audienceFit: 0.20,
+      engagementQuality: 0.15,
+      previousPerformance: 0.15,
+      regionFit: 0.05,
+      contentFormatRelevance: 0.05
+    }
   };
-  
+
+  const weights = weightsByObjective[objective];
+
   // Calculate individual component scores
   const budgetFitScore = calculateBudgetFit(creator, campaignSettings);
   const contentRelevanceScore = calculateContentRelevance(creator, campaignSettings);
   const audienceFitScore = calculateAudienceFit(creator, campaignSettings);
   const engagementQualityScore = calculateEngagementQuality(creator);
   const previousPerformanceScore = normalizePreviousPerformance(creator);
+  const regionFitScore = calculateRegionFit(creator, campaignSettings);
+  const formatRelevanceScore = calculateFormatRelevance(creator, campaignSettings);
   
   // Combine scores using weights
   const matchScore = (
@@ -115,7 +152,9 @@ function calculateMatchScore(creator, campaignSettings) {
     (contentRelevanceScore * weights.contentRelevance) +
     (audienceFitScore * weights.audienceFit) +
     (engagementQualityScore * weights.engagementQuality) +
-    (previousPerformanceScore * weights.previousPerformance)
+    (previousPerformanceScore * weights.previousPerformance) +
+    (regionFitScore * weights.regionFit) +
+    (formatRelevanceScore * weights.contentFormatRelevance)
   ) * 100;
   
   // Ensure score is between 0-100
@@ -132,14 +171,19 @@ function calculateBudgetFit(creator, campaignSettings) {
   const creatorRate = creator.hourlyRate;
   
   if (creatorRate < minBudget) {
-    // Below budget - score decreases as the gap increases
-    return Math.max(0, 1 - (minBudget - creatorRate) / minBudget);
-  } else if (creatorRate > maxBudget) {
-    // Above budget - score decreases as the gap increases
-    return Math.max(0, 1 - (creatorRate - maxBudget) / maxBudget);
-  } else {
-    // Within budget - full score
+    // Below budget - full score
     return 1;
+  } else if (creatorRate <= maxBudget) {
+    // Within budget range - linear decay from 1 -> 0.5 as rate goes from minBudget to maxBudget
+    const range = maxBudget - minBudget;
+    if (range === 0) return 0.5; // Avoid dividing by 0
+    const progress = (creatorRate - minBudget) / range;
+    return 1.0 - (0.5 * progress);  // If at the top end of the budget, the score will be 0.5
+  } else {
+    // Over budget - Decrease score as you go more over budget from 0.5 -> 0
+    const amtOver = creatorRate - maxBudget;
+    const decrease = amtOver / maxBudget;
+    return Math.max(0, 0.5 - decrease);
   }
 }
 
@@ -159,8 +203,8 @@ function calculateContentRelevance(creator, campaignSettings) {
   
   if (creatorCategories.length === 0) return 0;
   
-  // Calculate relevance score based on percentage of matching categories
-  return matchingCategories / Math.max(targetGenres.length, creatorCategories.length);
+  // Calculate relevance score based on percentage of matching categories out of the target categories desired
+  return matchingCategories / targetGenres.length;
 }
 
 // Calculate audience demographic fit
@@ -212,17 +256,19 @@ function calculateAudienceFit(creator, campaignSettings) {
     genderScore = targetGenderPercentage / 100;
   }
   
-  // Average age and gender scores for overall demographic match
-  return (ageScore + genderScore) / 2;
+  // Average age and gender scores for overall demographic match (70% age and 30% gender)
+  return (ageScore * 0.7) + (genderScore * 0.3);
 }
 
 // Calculate engagement quality score
 function calculateEngagementQuality(creator) {
   // Normalize engagement rate to a 0-1 scale (considering 15% as excellent)
-  const normalizedEngagement = Math.min(1, creator.engagementRate / 15);
+  // Use a log scale so going from 1% - 5% engagement is worth more than goin from 11% -> 15% engagement
+  const cappedEngagement = Math.min(creator.engagementRate, 15);
+  const normalizedEngagement = Math.log(1 + cappedEngagement) / Math.log(16);
   
-  // Normalize follower count to a 0-1 scale (considering 2M as maximum)
-  const normalizedFollowers = Math.min(1, creator.followers / 2000000);
+  // Normalize follower count to a 0-1 scale (considering 1M as maximum, so all big creators will get 1000000)
+  const normalizedFollowers = Math.min(1, creator.followers / 1000000);
   
   // Engagement quality considers both metrics, with emphasis on engagement rate
   return (normalizedEngagement * 0.7) + (normalizedFollowers * 0.3);
@@ -232,6 +278,85 @@ function calculateEngagementQuality(creator) {
 function normalizePreviousPerformance(creator) {
   // Convert campaign performance (0-100) to a 0-1 scale
   return creator.previousCampaignPerformance / 100;
+}
+
+// Calculate region match
+function calculateRegionFit(creator, campaignSettings) {
+  if (!campaignSettings.targetRegions ||
+    !Array.isArray(campaignSettings.targetRegions) ||
+    campaignSettings.targetRegions.length === 0
+  ) {
+    return 0.5; // Default score if no target regions specified
+  }
+
+  // Map each sub region to its major region
+  const regionMap = {
+    "US-West": "US",
+    "US-East": "US",
+    "US-Central": "US",
+    "US-South": "US",
+    "EU-Central": "EU",
+    "EU-West": "EU",
+    "EU-North": "EU",
+    "EU-South": "EU",
+    "APAC": "APAC"
+  };
+
+  const creatorRegion = regionMap[creator.location];
+  const match = campaignSettings.targetRegions.includes(creatorRegion);
+  return match ? 1 : 0;
+}
+
+
+// Calculate content format relevance match 
+function calculateFormatRelevance(creator, campaignSettings) {
+  if (!campaignSettings.targetFormats ||
+    !Array.isArray(campaignSettings.targetFormats) ||
+    campaignSettings.targetFormats.length === 0
+  ) {
+    return 0.5; // Default score if no target formats specified
+  }
+
+  // Different target format groups contain sub formats for creator content
+  const formatGroups = {
+    "Short-form": [
+      "Short Clips", "Quick Tips", "Glitch Demos", "Short Speedruns",
+      "Reactions", "Reaction Content", "Comedy Skits", "Game Shows", "Challenges"
+    ],
+    "Live Content": [
+      "Live Gameplay", "Pro Matches", "Relaxing Streams",
+      "Story Playthroughs", "Let's Play", "First Impressions"
+    ],
+    "Educational": [
+      "Tutorials", "Strategy Guides", "Coaching", "Meta Analysis",
+      "VOD Reviews", "Character Builds", "Weapon Analysis", "Devlogs", "Tech Demos"
+    ],
+    "Cinematic": [
+      "Documentaries", "Retrospectives", "Interviews",
+      "Reviews", "Lore Discussions", "Analysis", "Collections"
+    ],
+    "Entertainment": [
+      "Reaction Content", "Comedy Skits", "Game Shows", "Variety", "Just Chatting"
+    ]
+  };
+
+  const creatorGroups = new Set();
+
+  for (const [group, formats] of Object.entries(formatGroups)) {
+    if (creator.contentFormats.some(format => formats.includes(format))) {
+      creatorGroups.add(group);
+    }
+  }
+
+  const targetFormats = campaignSettings.targetFormats;
+
+  // Count matching format groups
+  const matchingGroups = targetFormats.filter(format =>
+    creatorGroups.has(format)
+  );
+  
+  // Return percentage of target formats that the creator has
+  return matchingGroups.length / campaignSettings.targetFormats.length;
 }
 
 // Start server
