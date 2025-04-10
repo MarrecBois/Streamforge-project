@@ -26,8 +26,8 @@ This document outlines the specific tasks that need to be implemented to complet
 
 ### Campaign Settings
 
-- [ ] Ensure campaign settings UI is well-designed
-- [ ] Make sure campaign settings affect match scores by sending to the API
+- [x] Ensure campaign settings UI is well-designed
+- [x] Make sure campaign settings affect match scores by sending to the API
 
 ### Sorting and UI Features
 
@@ -46,9 +46,9 @@ This document outlines the specific tasks that need to be implemented to complet
 
 ### Match Score Algorithm Optimization
 
-- [ ] Analyze the current algorithm implementation
-- [ ] Suggest and implement improvements to the algorithm
-- [ ] Optimize the algorithm for specific campaign objectives
+- [x] Analyze the current algorithm implementation
+- [x] Suggest and implement improvements to the algorithm
+- [x] Optimize the algorithm for specific campaign objectives
 - [ ] Add custom weighting based on campaign type
 
 ## Final Touches

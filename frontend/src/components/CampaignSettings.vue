@@ -8,6 +8,8 @@ const budgetMax = ref(500);
 const selectedGenres = ref([]);
 const targetAgeGroups = ref([]);
 const targetGenders = ref([]);
+const targetRegions = ref([]);
+const targetFormats = ref([]);
 const campaignObjective = ref('brand_awareness');
 
 const gameGenres = [
@@ -35,6 +37,20 @@ const genders = [
   'other'
 ];
 
+const regions = [
+  'US',
+  'EU',
+  'APAC'
+];
+
+const contentFormats = [
+  'Short-form',
+  'Live Content',
+  'Educational',
+  'Cinematic',
+  'Entertainment'
+];
+
 const objectives = [
   { value: 'brand_awareness', label: 'Brand Awareness' },
   { value: 'product_launch', label: 'Product Launch' },
@@ -48,6 +64,8 @@ function applySettings() {
     targetGenres: selectedGenres.value,
     targetAgeGroups: targetAgeGroups.value,
     targetGenders: targetGenders.value,
+    targetRegions: targetRegions.value,
+    targetFormats: targetFormats.value,
     campaignObjective: campaignObjective.value
   });
 }
@@ -146,6 +164,46 @@ function applySettings() {
           </label>
         </div>
       </div>
+
+      <!-- Target regions -->
+      <div class="mb-6">
+        <h4 class="font-medium mb-2">Target Regions</h4>
+        <div class="space-y-2">
+          <label 
+            v-for="region in regions" 
+            :key="region"
+            class="flex items-center space-x-2"
+          >
+            <input 
+              type="checkbox"
+              :value="region"
+              v-model="targetRegions"
+              class="w-4 h-4 text-brand-purple focus:ring-brand-purple"
+            >
+            <span>{{ region }}</span>
+          </label>
+        </div>
+      </div>
+      
+      <!-- Target content formats -->
+      <div class="mb-6">
+        <h4 class="font-medium mb-2">Preferred Content Formats</h4>
+        <div class="space-y-2">
+          <label 
+            v-for="format in contentFormats" 
+            :key="format"
+            class="flex items-center space-x-2"
+          >
+            <input 
+              type="checkbox"
+              :value="format"
+              v-model="targetFormats"
+              class="w-4 h-4 text-brand-purple focus:ring-brand-purple"
+            >
+            <span>{{ format }}</span>
+          </label>
+        </div>
+      </div>      
       
       <!-- Target game genres -->
       <div class="mb-6">
