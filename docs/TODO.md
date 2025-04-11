@@ -53,7 +53,7 @@ This document outlines the specific tasks that need to be implemented to complet
 
 ## Final Touches
 
-- [ ] Create a write-up explaining your approach and decisions
-- [ ] Document any tradeoffs you made due to time constraints
-- [ ] Add a section on potential future improvements
+- [x] Create a write-up explaining your approach and decisions
+- [x] Document any tradeoffs you made due to time constraints
+- [x] Add a section on potential future improvements
 - [x] Make sure code is clean, commented, and follows best practices
