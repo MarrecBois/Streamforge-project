@@ -69,10 +69,10 @@ These are passed to the backend via query parameters and dynamically update the 
 ## Future Improvements
 
 ### Mobile Optimization Testing
-Although responsive Tailwind classes are used, the dashboard needs more extensive testing on physical devices. Improvements may include collapsing sidebars, refining spacing, and enhancing touch interaction support.
+While the dashboard uses responsive TailwindCSS utility classes and performs well across screen sizes in basic testing, more rigorous testing is needed on actual mobile and tablet devices. This includes verifying touch interactions, dropdown accessibility, and layout behavior in real-world screen resolutions. Improvements may involve fine-tuning padding, collapsing sidebars, and optimizing for one-column layouts.
 
 ### Stakeholder Feedback & Iteration
-User testing and stakeholder reviews would help prioritize UI and UX improvements—especially copy, navigation, and filtering workflows.
+I plan to gather feedback from stakeholders (e.g., marketing leads or potential users) to identify friction points in the interface and prioritize usability fixes. These improvements would likely focus on copy clarity, UI intuitiveness, and streamlining the filtering or match score experience based on how users actually interact with the tool.
 
 ### Migration to VueShadCN Components
-VueShadCN components weren’t used in this project due to late discovery and time constraints. For a production version, I would replace major UI components with VueShadCN alternatives for improved accessibility and design consistency.
+Although VueShadCN components were not used in this project, I acknowledge that they were part of the recommended stack. I wasn’t aware of this requirement until later in development, and due to time constraints, I opted to continue with standard Vue and TailwindCSS components. In a production context, I would explore replacing key interface elements with VueShadCN counterparts for consistency, accessibility, and design alignment.
