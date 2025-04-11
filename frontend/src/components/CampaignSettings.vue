@@ -6,6 +6,27 @@ const props = defineProps({
 });
 
 const campaignSettings = props.settings;
+const defaultSettings = {
+  budget: [100, 500],
+  targetGenres: [],
+  targetAgeGroups: [],
+  targetGenders: [],
+  targetRegions: [],
+  targetFormats: [],
+  duration: 30,
+  campaignObjective: 'brand_awareness',
+  customWeights: {
+    budgetFit: 0.1,
+    contentRelevance: 0.2,
+    audienceFit: 0.2,
+    engagementQuality: 0.15,
+    previousPerformance: 0.1,
+    regionFit: 0.15,
+    contentFormatRelevance: 0.1
+  }
+};
+
+
 
 const emit = defineEmits(['settings-change']);
 
@@ -67,13 +88,18 @@ const customWeights = ref({
   previousPerformance: 0.1,
   regionFit: 0.15,
   contentFormatRelevance: 0.1
-})
+});
 
 // Control for dropdown selections
 const activeDropdown = ref(null);
 
 function applySettings() {
   emit('settings-change', { ...campaignSettings.value  });
+}
+
+function resetSettings() {
+  Object.assign(campaignSettings, JSON.parse(JSON.stringify(defaultSettings)));
+  applySettings();
 }
 </script>
 
@@ -304,8 +330,14 @@ function applySettings() {
       </div>
     </div>
 
-    <div class="flex items-center p-6 pt-0 justify-end">
-      <button
+    <div class="flex items-center p-6 pt-0 justify-between">
+      <button 
+        @click="resetSettings"
+        class="inline-flex items-center justify-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+      >
+        Reset Settings
+      </button>
+      <button 
         @click="applySettings"
         class="inline-flex items-center justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
       >
