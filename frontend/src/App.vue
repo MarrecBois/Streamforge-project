@@ -23,7 +23,17 @@ const filters = ref({
 const campaignSettings = ref({
   budget: [0, 1000],
   targetGenres: [],
-  duration: 30
+  duration: 30,
+  campaignObjective: 'brand_awareness',
+  customWeights: {
+    budgetFit: 0.1,
+    contentRelevance: 0.2,
+    audienceFit: 0.2,
+    engagementQuality: 0.15,
+    previousPerformance: 0.1,
+    regionFit: 0.15,
+    contentFormatRelevance: 0.1
+  }
 });
 const sortBy = ref('matchScore');
 const sortDirection = ref('desc');
@@ -111,7 +121,8 @@ async function updateCampaignSettings(newSettings) {
   try {
     const response = await axios.post('http://localhost:3000/api/match', {
       ...campaignSettings.value,
-      creators: creators.value
+      creators: creators.value,
+      customWeights : campaignSettings.value.campaignObjective === 'custom' ? campaignSettings.value.customWeights : undefined
     });
     creators.value = response.data;
   } catch (error) {

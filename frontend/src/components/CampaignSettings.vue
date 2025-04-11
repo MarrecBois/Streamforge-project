@@ -53,12 +53,25 @@ const contentFormats = [
   'Entertainment'
 ];
 
+// Options for campaign objectives
 const objectives = [
   { value: 'brand_awareness', label: 'Brand Awareness' },
   { value: 'product_launch', label: 'Product Launch' },
   { value: 'community_engagement', label: 'Community Engagement' },
-  { value: 'conversion', label: 'Conversions & Sales' }
+  { value: 'conversion', label: 'Conversions & Sales' },
+  { value: 'custom', label: 'Custom Weighting' },
 ];
+
+// Default values for custom weighting
+const customWeights = ref({
+  budgetFit: 0.1,
+  contentRelevance: 0.2,
+  audienceFit: 0.2,
+  engagementQuality: 0.15,
+  previousPerformance: 0.1,
+  regionFit: 0.15,
+  contentFormatRelevance: 0.1
+})
 
 function applySettings() {
   emit('settings-change', {
@@ -68,7 +81,8 @@ function applySettings() {
     targetGenders: targetGenders.value,
     targetRegions: targetRegions.value,
     targetFormats: targetFormats.value,
-    campaignObjective: campaignObjective.value
+    campaignObjective: campaignObjective.value,
+    customWeights: campaignObjective.value === 'custom' ? customWeights.value : null
   });
 }
 </script>
@@ -97,7 +111,29 @@ function applySettings() {
           </option>
         </select>
       </div>
-    
+
+      <!-- Custom Weighting Sliders -->
+      <div v-if="campaignObjective === 'custom'" class="mb-6 space-y-4">
+        <div v-for="(label, key) in {
+          budgetFit: 'Budget Fit',
+          contentRelevance: 'Content Relevance',
+          audienceFit: 'Audience Fit',
+          engagementQuality: 'Engagement Quality',
+          previousPerformance: 'Previous Performance',
+          regionFit: 'Region Fit',
+          contentFormatRelevance: 'Content Format Relevance'
+        }" :key="key">
+          <label class="text-sm font-medium">{{ label }} ({{ customWeights[key].toFixed(2) }})</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            v-model.number="customWeights[key]"
+            class="w-full"
+          />
+        </div>
+      </div>
       
       <!-- Budget range settings -->
       <div class="mb-6">
@@ -264,7 +300,7 @@ function applySettings() {
         </div>
       </div>
     </div>
-    
+
     <div class="flex items-center p-6 pt-0 justify-end">
       <button 
         @click="applySettings" 
