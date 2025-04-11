@@ -69,7 +69,7 @@ These are passed to the backend via query parameters and dynamically update the 
 ## Future Improvements
 
 ### Mobile Optimization Testing
-While the dashboard uses responsive TailwindCSS utility classes and performs well across screen sizes in basic testing, more rigorous testing is needed on actual mobile and tablet devices. This includes verifying touch interactions, dropdown accessibility, and layout behavior in real-world screen resolutions. Improvements may involve fine-tuning padding, collapsing sidebars, and optimizing for one-column layouts.
+While the dashboard uses responsive TailwindCSS utility classes and performs well across screen sizes in basic testing, more rigorous testing is needed on actual mobile and tablet devices. This includes verifying touch interactions, dropdown accessibility, and layout behavior in real-world screen resolutions. Improvements may involve fine-tuning padding, collapsing sidebars, and optimizing for one-column layouts. I plan to fix the length of the sidebar by adding an inner scroll container. This would prevent users from needing to scroll the entire page when adjusting filters or campaign settings, especially on smaller screens, which would improve overall usability and screen size flexibility.
 
 ### Stakeholder Feedback & Iteration
 I plan to gather feedback from stakeholders (e.g., marketing leads or potential users) to identify friction points in the interface and prioritize usability fixes. These improvements would likely focus on copy clarity, UI intuitiveness, and streamlining the filtering or match score experience based on how users actually interact with the tool.
