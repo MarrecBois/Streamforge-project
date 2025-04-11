@@ -130,7 +130,7 @@ async function updateFilters(newFilters) {
 }
 
 async function updateCampaignSettings(newSettings) {
-  campaignSettings.value = { ...campaignSettings.value, ...newSettings };
+  Object.assign(campaignSettings.value, newSettings);
   try {
     const response = await axios.post('http://localhost:3000/api/match', {
       ...campaignSettings.value,

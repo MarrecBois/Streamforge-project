@@ -127,7 +127,7 @@ function applySettings() {
       <div v-if="campaignSettings.campaignObjective === 'custom'" class="mb-6 space-y-4">
         <div v-for="(label, key) in {
           budgetFit: 'Budget Fit',
-          contentRelevance: 'Content Relevance',
+          contentRelevance: 'Genre Relevance',
           audienceFit: 'Audience Fit',
           engagementQuality: 'Engagement Quality',
           previousPerformance: 'Previous Performance',
