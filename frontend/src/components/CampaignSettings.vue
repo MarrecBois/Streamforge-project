@@ -5,6 +5,7 @@ const props = defineProps({
   settings: Object
 });
 
+// Initial state and default settings
 const campaignSettings = props.settings;
 const defaultSettings = {
   budget: [100, 500],
@@ -30,7 +31,7 @@ const defaultSettings = {
 
 const emit = defineEmits(['settings-change']);
 
-
+// To populate the check box menus
 const gameGenres = [
   'FPS',
   'MOBA',

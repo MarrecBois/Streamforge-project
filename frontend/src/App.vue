@@ -39,6 +39,8 @@ const campaignSettings = ref({
     contentFormatRelevance: 0.1
   }
 });
+
+// Sorting variables
 const sortBy = ref('matchScore');
 const sortDirection = ref('desc');
 
@@ -95,6 +97,7 @@ async function updateFilters(newFilters) {
   try {
     const params = new URLSearchParams();
 
+    // Populates the parameters based on the options chosen by the user
     if (filters.value.platforms.length) {
       filters.value.platforms.forEach(p => params.append('platforms', p));
     }
@@ -118,6 +121,7 @@ async function updateFilters(newFilters) {
     const response = await axios.get(`http://localhost:3000/api/creators/filter?${params.toString()}`);
     creators.value = response.data;
 
+    // Recalculate the match score for only the filtered creators
     const matchResponse = await axios.post(`http://localhost:3000/api/match`, {
       ...campaignSettings.value,
       creators: response.data
@@ -129,6 +133,7 @@ async function updateFilters(newFilters) {
   }
 }
 
+// Update the campaign settings based on any new changes
 async function updateCampaignSettings(newSettings) {
   Object.assign(campaignSettings.value, newSettings);
   try {

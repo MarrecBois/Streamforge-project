@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, toRefs } from 'vue';
 
+// All props that are used 
 const props = defineProps({
   filters : Object,
   platforms: {
@@ -32,9 +33,15 @@ const props = defineProps({
 const emit = defineEmits(['filter-change']);
 
 const filters = props.filters;
-
 const activeDropdown = ref(null);
 
+const allRegions = [
+  "US-West", "US-East", "US-Central", "US-South",
+  "EU-Central", "EU-West", "EU-North", "EU-South",
+  "APAC"
+];
+
+// Functions to apply and reset the filters when buttons are pressed
 function applyFilters() {
   emit('filter-change', { ...filters });
 }
@@ -49,11 +56,7 @@ function resetFilters() {
   applyFilters();
 }
 
-const allRegions = [
-  "US-West", "US-East", "US-Central", "US-South",
-  "EU-Central", "EU-West", "EU-North", "EU-South",
-  "APAC"
-];
+
 </script>
 
 <template>

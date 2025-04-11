@@ -76,20 +76,8 @@ const isExpanded = ref(false);
 function toggleExpand() {
   isExpanded.value = !isExpanded.value;
 };
-
-// For example, format large follower numbers, calculate match score width, etc.
 </script>
 
-<!-- TODO: Implement the creator card UI -->
-<!-- 
-  Requirements:
-  1. Display basic creator info (username, platform, etc.)
-  2. Show the match score prominently
-  3. Display key metrics (followers, engagement rate)
-  4. Show content categories
-  5. Make it visually appealing and informative for marketers
-  6. Use Tailwind CSS for styling
--->
 <template>
   <div class="border rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
     :class="platformBgClass"
