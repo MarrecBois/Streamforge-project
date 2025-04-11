@@ -8,7 +8,7 @@ import CreatorCard from './components/CreatorCard.vue';
 import FilterSidebar from './components/FilterSidebar.vue';
 import CampaignSettings from './components/CampaignSettings.vue';
 
-// State
+// Initial States
 const creators = ref([]);
 const allCreators = ref([]);
 const selectedTab = ref('filters');
@@ -16,6 +16,9 @@ const filters = ref({
   platforms: [],
   categories: [],
   followerRange: [0, 2000000],
+  regions: [],
+  verifiedOnly: false,
+  engagementRateMin: 0
 });
 const campaignSettings = ref({
   budget: [0, 1000],
@@ -45,6 +48,15 @@ const filteredCreators = computed(() => {
   return creators.value;
 });
 
+const availableRegions = computed(() => {
+  const regions = new Set();
+  allCreators.value.forEach(creator => {
+    regions.add(creator.location);
+  });
+  return Array.from(regions);
+});
+
+
 const sortedCreators = computed(() => {
   return [...filteredCreators.value].sort((a, b) => {
     const aValue = a[sortBy.value];
@@ -69,6 +81,15 @@ async function updateFilters(newFilters) {
     if (filters.value.followerRange.length === 2) {
       params.append('followerRange', filters.value.followerRange[0]);
       params.append('followerRange', filters.value.followerRange[1]);
+    }
+    if (filters.value.regions.length) {
+      filters.value.regions.forEach(r => params.append('regions', r));
+    }
+    if (filters.value.verifiedOnly) {
+      params.append('verifiedOnly', 'true');
+    }
+    if (filters.value.engagementRateMin) {
+      params.append('engagementRateMin', filters.value.engagementRateMin);
     }
 
     const response = await axios.get(`http://localhost:3000/api/creators/filter?${params.toString()}`);
@@ -102,13 +123,25 @@ function toggleSortDirection() {
   sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
 }
 
-function resetFilters() {
+async function resetFilters() {
   filters.value = {
     platforms: [],
     categories: [],
     followerRange: [0, 2000000],
+    regions: [],
+    verifiedOnly: false,
+    engagementRateMin: 0
   };
-  creators.value = allCreators.value;
+  try {
+    // Re-run the match score on the full list
+    const matchResponse = await axios.post(`http://localhost:3000/api/match`, {
+      ...campaignSettings.value,
+      creators: allCreators.value
+    });
+    creators.value = matchResponse.data;
+  } catch (error) {
+    console.error('Error resetting filters:', error);
+  }
 }
 
 onMounted(async () => {
@@ -157,6 +190,9 @@ onMounted(async () => {
               :platforms="availablePlatforms"
               :categories="availableCategories"
               :followerRange="filters.followerRange"
+              :region="availableRegions"
+              :verified="filters.verifiedOnly"
+              :engagementRateMin="filters.engagementRateMin"
               @filter-change="updateFilters"
             />
 

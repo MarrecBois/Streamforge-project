@@ -22,6 +22,11 @@ const selectedPlatforms = ref([]);
 const selectedCategories = ref([]);
 const followerMin = ref(props.followerRange[0]);
 const followerMax = ref(props.followerRange[1]);
+const selectedRegions = ref([]);
+const verifiedOnly = ref(false);
+const engagementRateMin = ref(0);
+const showCategories = ref(false);
+const showRegions = ref(false);
 
 watch(
   () => props.followerRange,
@@ -35,17 +40,29 @@ function applyFilters() {
   emit('filter-change', {
     platforms: selectedPlatforms.value,
     categories: selectedCategories.value,
-    followerRange: [followerMin.value, followerMax.value]
+    followerRange: [followerMin.value, followerMax.value],
+    regions: selectedRegions.value,
+    verifiedOnly: verifiedOnly.value,
+    engagementRateMin: engagementRateMin.value
   });
 }
 
 function resetFilters() {
   selectedPlatforms.value = [];
   selectedCategories.value = [];
+  selectedRegions.value = [];
+  verifiedOnly.value = false;
+  engagementRateMin.value = 0;
   followerMin.value = 0;
   followerMax.value = 2000000;
   applyFilters();
 }
+
+const allRegions = [
+  "US-West", "US-East", "US-Central", "US-South",
+  "EU-Central", "EU-West", "EU-North", "EU-South",
+  "APAC"
+];
 </script>
 
 <template>
@@ -104,21 +121,102 @@ function resetFilters() {
       <!-- Categories -->
       <div class="mb-6">
         <h4 class="font-medium mb-2">Content Categories</h4>
-        <div class="space-y-2">
-          <label 
-            v-for="category in categories" 
-            :key="category" 
-            class="flex items-center space-x-2"
+        <div class="relative">
+          <button
+            @click="showCategories = !showCategories"
+            type="button"
+            class="w-full flex justify-between items-center border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-purple"
           >
-            <input 
-              type="checkbox" 
-              :value="category" 
-              v-model="selectedCategories"
-              class="w-4 h-4 text-brand-purple focus:ring-brand-purple"
-            >
-            <span>{{ category }}</span>
-          </label>
+            <span>Select Categories</span>
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div
+            v-if="showCategories"
+            class="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-lg"
+          >
+            <div class="p-2 space-y-1">
+              <label
+                v-for="category in categories"
+                :key="category"
+                class="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  :value="category"
+                  v-model="selectedCategories"
+                  class="w-4 h-4 text-brand-purple"
+                >
+                <span class="text-sm">{{ category }}</span>
+              </label>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Regions -->
+      <div class="mb-6">
+        <h4 class="font-medium mb-2">Regions</h4>
+        <div class="relative">
+          <button
+            @click="showRegions = !showRegions"
+            type="button"
+            class="w-full flex justify-between items-center border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          >
+            <span>Select Regions</span>
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div
+            v-if="showRegions"
+            class="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-lg"
+          >
+            <div class="p-2 space-y-1">
+              <label
+                v-for="region in allRegions"
+                :key="region"
+                class="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  :value="region"
+                  v-model="selectedRegions"
+                  class="w-4 h-4 text-brand-purple"
+                >
+                <span class="text-sm">{{ region }}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verified Only -->
+      <div class="mb-6">
+        <h4 class="font-medium mb-2">Verified Only</h4>
+        <label class="flex items-center space-x-2">
+          <input 
+            type="checkbox" 
+            v-model="verifiedOnly"
+            class="w-4 h-4 text-brand-purple focus:ring-brand-purple"
+          >
+          <span>Only show verified creators</span>
+        </label>
+      </div>
+
+      <!-- Engagement Rate Min -->
+      <div class="mb-6">
+        <h4 class="font-medium mb-2">Minimum Engagement Rate (%)</h4>
+        <input 
+          type="number"
+          v-model.number="engagementRateMin"
+          min="0"
+          step="0.1"
+          class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple"
+        >
       </div>
     </div>
 

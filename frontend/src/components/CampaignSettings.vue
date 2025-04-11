@@ -11,6 +11,8 @@ const targetGenders = ref([]);
 const targetRegions = ref([]);
 const targetFormats = ref([]);
 const campaignObjective = ref('brand_awareness');
+const showFormats = ref(false);
+const showGenres = ref(false);
 
 const gameGenres = [
   'FPS',
@@ -95,6 +97,7 @@ function applySettings() {
           </option>
         </select>
       </div>
+    
       
       <!-- Budget range settings -->
       <div class="mb-6">
@@ -188,40 +191,76 @@ function applySettings() {
       <!-- Target content formats -->
       <div class="mb-6">
         <h4 class="font-medium mb-2">Preferred Content Formats</h4>
-        <div class="space-y-2">
-          <label 
-            v-for="format in contentFormats" 
-            :key="format"
-            class="flex items-center space-x-2"
+        <div class="relative">
+          <button
+            @click="showFormats = !showFormats"
+            type="button"
+            class="w-full flex justify-between items-center border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-purple"
           >
-            <input 
-              type="checkbox"
-              :value="format"
-              v-model="targetFormats"
-              class="w-4 h-4 text-brand-purple focus:ring-brand-purple"
-            >
-            <span>{{ format }}</span>
-          </label>
+            <span>Select Content Formats</span>
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div
+            v-if="showFormats"
+            class="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-lg"
+          >
+            <div class="p-2 space-y-1">
+              <label
+                v-for="format in contentFormats"
+                :key="format"
+                class="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  :value="format"
+                  v-model="targetFormats"
+                  class="w-4 h-4 text-brand-purple"
+                >
+                <span class="text-sm">{{ format }}</span>
+              </label>
+            </div>
+          </div>
         </div>
-      </div>      
+      </div>
       
       <!-- Target game genres -->
       <div class="mb-6">
         <h4 class="font-medium mb-2">Target Game Genres</h4>
-        <div class="space-y-2">
-          <label 
-            v-for="genre in gameGenres" 
-            :key="genre"
-            class="flex items-center space-x-2"
+        <div class="relative">
+          <button
+            @click="showGenres = !showGenres"
+            type="button"
+            class="w-full flex justify-between items-center border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-purple"
           >
-            <input 
-              type="checkbox"
-              :value="genre"
-              v-model="selectedGenres"
-              class="w-4 h-4 text-brand-purple focus:ring-brand-purple"
-            >
-            <span>{{ genre }}</span>
-          </label>
+            <span>Select Game Genres</span>
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div
+            v-if="showGenres"
+            class="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-lg"
+          >
+            <div class="p-2 space-y-1">
+              <label
+                v-for="genre in gameGenres"
+                :key="genre"
+                class="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  :value="genre"
+                  v-model="selectedGenres"
+                  class="w-4 h-4 text-brand-purple"
+                >
+                <span class="text-sm">{{ genre }}</span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
