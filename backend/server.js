@@ -79,8 +79,10 @@ app.post('/api/match', (req, res) => {
   // Implementation of the match score calculation algorithm
   const campaignSettings = req.body;
   
-  // Calculate match scores for all creators
-  const creatorsWithScores = creatorsData.map(creator => {
+  // Calculate match scores for only the creators that were passed (potentially after filtering)
+  const creatorsToScore = Array.isArray(campaignSettings.creators) ? campaignSettings.creators : creatorsData;
+
+  const creatorsWithScores = creatorsToScore.map(creator => {
     const matchScore = calculateMatchScore(creator, campaignSettings);
     return {
       ...creator,
@@ -135,7 +137,24 @@ function calculateMatchScore(creator, campaignSettings) {
     }
   };
 
-  const weights = weightsByObjective[objective];
+  // If the weights are custom, divide each weight by the total weight sum to get the percentage
+  let weights;
+  if (objective === 'custom' && campaignSettings.customWeights) {
+    const custom = campaignSettings.customWeights;
+    const sum = Object.values(custom).reduce((acc, value) => acc + value, 0) || 1;
+
+    weights = {
+      budgetFit: custom.budgetFit / sum,
+      contentRelevance: custom.contentRelevance / sum,
+      audienceFit: custom.audienceFit / sum,
+      engagementQuality: custom.engagementQuality / sum,
+      previousPerformance: custom.previousPerformance / sum,
+      regionFit: custom.regionFit / sum,
+      contentFormatRelevance: custom.contentFormatRelevance / sum
+    }
+  } else {
+    weights = weightsByObjective[objective] ?? weightsByObjective['brand_awareness']
+  }
 
   // Calculate individual component scores
   const budgetFitScore = calculateBudgetFit(creator, campaignSettings);
