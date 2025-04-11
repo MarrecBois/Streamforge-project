@@ -6,23 +6,23 @@ This document outlines the specific tasks that need to be implemented to complet
 
 ### Creator Card Component
 
-- [ ] Design and implement the Creator Card UI from scratch
-- [ ] Display essential creator information (username, platform, followers, etc.)
-- [ ] Create a visually appealing match score indicator
-- [ ] Show content categories with appropriate styling
-- [ ] Include key metrics that marketers would care about
-- [ ] Ensure the design is responsive
+- [x] Design and implement the Creator Card UI from scratch
+- [x] Display essential creator information (username, platform, followers, etc.)
+- [x] Create a visually appealing match score indicator
+- [x] Show content categories with appropriate styling
+- [x] Include key metrics that marketers would care about
+- [x] Ensure the design is responsive
 
 ### Filtering Implementation
 
-- [ ] Design and implement the FilterSidebar component UI from scratch
-- [ ] Implement platform filtering (Twitch, YouTube, TikTok)
-- [ ] Implement follower count range filtering
-- [ ] Add content category filtering
-- [ ] Add region filtering
-- [ ] Add verified status filtering
-- [ ] Implement engagement rate minimum filtering
-- [ ] Connect the filter UI to the API endpoints
+- [x] Design and implement the FilterSidebar component UI from scratch
+- [x] Implement platform filtering (Twitch, YouTube, TikTok)
+- [x] Implement follower count range filtering
+- [x] Add content category filtering
+- [x] Add region filtering
+- [x] Add verified status filtering
+- [x] Implement engagement rate minimum filtering
+- [x] Connect the filter UI to the API endpoints
 
 ### Campaign Settings
 
@@ -34,7 +34,7 @@ This document outlines the specific tasks that need to be implemented to complet
 - [ ] Enhance the sorting functionality
 - [ ] Add responsive layout for mobile/tablet views
 - [ ] Implement empty state handling
-- [ ] Improve overall user experience
+- [x] Improve overall user experience
 
 ## Backend Tasks
 
@@ -49,11 +49,11 @@ This document outlines the specific tasks that need to be implemented to complet
 - [x] Analyze the current algorithm implementation
 - [x] Suggest and implement improvements to the algorithm
 - [x] Optimize the algorithm for specific campaign objectives
-- [ ] Add custom weighting based on campaign type
+- [x] Add custom weighting based on campaign type
 
 ## Final Touches
 
 - [ ] Create a write-up explaining your approach and decisions
 - [ ] Document any tradeoffs you made due to time constraints
 - [ ] Add a section on potential future improvements
-- [ ] Make sure code is clean, commented, and follows best practices
+- [x] Make sure code is clean, commented, and follows best practices

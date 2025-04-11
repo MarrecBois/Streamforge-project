@@ -25,8 +25,7 @@ const followerMax = ref(props.followerRange[1]);
 const selectedRegions = ref([]);
 const verifiedOnly = ref(false);
 const engagementRateMin = ref(0);
-const showCategories = ref(false);
-const showRegions = ref(false);
+const activeDropdown = ref(null);
 
 watch(
   () => props.followerRange,
@@ -123,18 +122,20 @@ const allRegions = [
         <h4 class="font-medium mb-2">Content Categories</h4>
         <div class="relative">
           <button
-            @click="showCategories = !showCategories"
+            @click="activeDropdown = activeDropdown === 'categories' ? null : 'categories'"
             type="button"
             class="w-full flex justify-between items-center border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-purple"
           >
-            <span>Select Categories</span>
+            <span>
+              {{ selectedCategories.length ? selectedCategories.join(', ') : 'Select Categories' }}
+            </span>
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
 
           <div
-            v-if="showCategories"
+            v-if="activeDropdown === 'categories'"
             class="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-lg"
           >
             <div class="p-2 space-y-1">
@@ -161,18 +162,20 @@ const allRegions = [
         <h4 class="font-medium mb-2">Regions</h4>
         <div class="relative">
           <button
-            @click="showRegions = !showRegions"
+            @click="activeDropdown = activeDropdown === 'regions' ? null : 'regions'"
             type="button"
             class="w-full flex justify-between items-center border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-purple"
           >
-            <span>Select Regions</span>
+            <span>
+              {{ selectedRegions.length ? selectedRegions.join(', ') : 'Select Regions' }}
+            </span>
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
 
           <div
-            v-if="showRegions"
+            v-if="activeDropdown === 'regions'"
             class="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-lg"
           >
             <div class="p-2 space-y-1">

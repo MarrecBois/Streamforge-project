@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
   creator: {
@@ -8,7 +8,9 @@ const props = defineProps({
   }
 });
 
-// TODO: Implement computed properties and helper functions to format data
+
+
+//Implement computed properties and helper functions to format data
 function formatNumber(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
   if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
@@ -68,6 +70,13 @@ const formatBubbleClass = computed(() => {
   return bubbleMap[platform] || 'bg-blue-200';
 });
 
+// Allow creator card to be expanded by clicking on it
+const isExpanded = ref(false);
+
+function toggleExpand() {
+  isExpanded.value = !isExpanded.value;
+};
+
 // For example, format large follower numbers, calculate match score width, etc.
 </script>
 
@@ -82,18 +91,38 @@ const formatBubbleClass = computed(() => {
   6. Use Tailwind CSS for styling
 -->
 <template>
-  <div class="border rounded-xl shadow-sm hover:shadow-md transition-shadow"
+  <div class="border rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
     :class="platformBgClass"
+    @click="toggleExpand"
     >
     <div class="p-4 space-y-3">
       
-      <!-- Username + Platform -->
+      <!-- Username + Platform + Expand Icon -->
       <div class="flex justify-between items-center">
-        <h3 class="text-lg font-semibold truncate">{{ creator.username }}</h3>
-        <img
-          :src="platformIcon"
-          :alt="creator.platform + ' logo'"
-          class="h-6 w-6 object-contain rounded-sm">
+        <h3 class="text-lg font-semibold truncate flex items-center">{{ creator.username }}
+        <img 
+          v-if="creator.verified"
+          src="/verified.png"
+          alt="verified"
+          class="ml-2 h-4 w-4"
+          >
+        </h3>
+        <div class="flex items-center space-x-2">
+          <img
+            :src="platformIcon"
+            :alt="creator.platform + ' logo'"
+            class="h-6 w-6 object-contain rounded-sm"
+          >
+          <svg
+            class="h-4 w-4 transition-transform duration-300"
+            :class="{ 'rotate-180': isExpanded }"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
 
       <!-- Match Score -->
@@ -133,5 +162,24 @@ const formatBubbleClass = computed(() => {
         </span>
       </div>
     </div>
+    <transition
+      name="expand"
+      enter-active-class="transition-all duration-300 ease-out"
+      leave-active-class="transition-all duration-200 ease-in"
+      enter-from-class="max-h-0 opacity-0"
+      enter-to-class="max-h-96 opacity-100"
+      leave-from-class="max-h-96 opacity-100"
+      leave-to-class="max-h-0 opacity-0"
+    >
+      <!-- Expanded Info -->
+      <div v-if="isExpanded" 
+      :class="['overflow-hidden p-4 text-sm space-y-2', platformBgClass]">
+        <p><strong>Region:</strong> {{ creator.location }}</p>
+        <p><strong>Average Viewers:</strong> {{ formatNumber(creator.avgViewers) }}</p>
+        <p><strong>Hourly Rate:</strong> ${{ creator.hourlyRate }}</p>
+        <p><strong>Content Formats:</strong> {{ creator.contentFormats.join(', ') }}</p>
+        <p><strong>Sponsorship History:</strong> {{ creator.sponsorshipHistory.join(', ') }}</p>
+      </div>
+    </transition>
   </div>
 </template>

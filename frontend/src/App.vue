@@ -21,7 +21,7 @@ const filters = ref({
   engagementRateMin: 0
 });
 const campaignSettings = ref({
-  budget: [0, 1000],
+  budget: [100, 500],
   targetGenres: [],
   duration: 30,
   campaignObjective: 'brand_awareness',
@@ -231,12 +231,14 @@ onMounted(async () => {
           </div>
 
           <!-- Creator cards grid -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <CreatorCard
+          <div class="flex flex-wrap gap-6">
+            <div
               v-for="creator in sortedCreators"
               :key="creator.id"
-              :creator="creator"
-            />
+              class="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
+            >
+              <CreatorCard :creator="creator" />
+            </div>
           </div>
 
           <!-- Empty state -->

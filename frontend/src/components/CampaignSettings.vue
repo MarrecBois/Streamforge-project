@@ -5,14 +5,12 @@ const emit = defineEmits(['settings-change']);
 
 const budgetMin = ref(100);
 const budgetMax = ref(500);
-const selectedGenres = ref([]);
+const targetGenres = ref([]);
 const targetAgeGroups = ref([]);
 const targetGenders = ref([]);
 const targetRegions = ref([]);
 const targetFormats = ref([]);
 const campaignObjective = ref('brand_awareness');
-const showFormats = ref(false);
-const showGenres = ref(false);
 
 const gameGenres = [
   'FPS',
@@ -73,10 +71,13 @@ const customWeights = ref({
   contentFormatRelevance: 0.1
 })
 
+// Control for dropdown selections
+const activeDropdown = ref(null);
+
 function applySettings() {
   emit('settings-change', {
     budget: [budgetMin.value, budgetMax.value],
-    targetGenres: selectedGenres.value,
+    targetGenres: targetGenres.value,
     targetAgeGroups: targetAgeGroups.value,
     targetGenders: targetGenders.value,
     targetRegions: targetRegions.value,
@@ -98,18 +99,39 @@ function applySettings() {
       <!-- Campaign objective -->
       <div class="mb-6">
         <h4 class="font-medium mb-2">Campaign Objective</h4>
-        <select 
-          v-model="campaignObjective"
-          class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple"
-        >
-          <option 
-            v-for="objective in objectives" 
-            :key="objective.value"
-            :value="objective.value"
+        <div class="relative">
+          <button
+            @click="activeDropdown = activeDropdown === 'objective' ? null : 'objective'"
+            type="button"
+            class="w-full flex justify-between items-center border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-purple"
           >
-            {{ objective.label }}
-          </option>
-        </select>
+            <span>
+              {{
+                objectives.find(obj => obj.value === campaignObjective)?.label ||
+                'Select Campaign Objective'
+              }}
+            </span>
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div
+            v-if="activeDropdown === 'objective'"
+            class="absolute z-10 mt-2 w-full rounded-md border border-gray-300 bg-white shadow-lg max-h-60 overflow-y-auto"
+          >
+            <div class="p-2 space-y-1">
+              <button
+                v-for="objective in objectives"
+                :key="objective.value"
+                @click="campaignObjective = objective.value; activeDropdown = null"
+                class="w-full text-left px-2 py-1 text-sm hover:bg-gray-100 rounded-md"
+              >
+                {{ objective.label }}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Custom Weighting Sliders -->
@@ -229,18 +251,20 @@ function applySettings() {
         <h4 class="font-medium mb-2">Preferred Content Formats</h4>
         <div class="relative">
           <button
-            @click="showFormats = !showFormats"
+            @click="activeDropdown = activeDropdown === 'formats' ? null : 'formats'"
             type="button"
             class="w-full flex justify-between items-center border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-purple"
           >
-            <span>Select Content Formats</span>
+            <span>
+              {{ targetFormats.length ? targetFormats.join(', ') : 'Select Content Formats' }}
+            </span>
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
 
           <div
-            v-if="showFormats"
+            v-if="activeDropdown === 'formats'"
             class="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-lg"
           >
             <div class="p-2 space-y-1">
@@ -267,18 +291,20 @@ function applySettings() {
         <h4 class="font-medium mb-2">Target Game Genres</h4>
         <div class="relative">
           <button
-            @click="showGenres = !showGenres"
+            @click="activeDropdown = activeDropdown === 'genres' ? null : 'genres'"
             type="button"
             class="w-full flex justify-between items-center border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-purple"
           >
-            <span>Select Game Genres</span>
+            <span>
+              {{ targetGenres.length ? targetGenres.join(', ') : 'Select Game Genres' }}
+            </span>
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
 
           <div
-            v-if="showGenres"
+            v-if="activeDropdown === 'genres'"
             class="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-lg"
           >
             <div class="p-2 space-y-1">
@@ -290,7 +316,7 @@ function applySettings() {
                 <input
                   type="checkbox"
                   :value="genre"
-                  v-model="selectedGenres"
+                  v-model="targetGenres"
                   class="w-4 h-4 text-brand-purple"
                 >
                 <span class="text-sm">{{ genre }}</span>
