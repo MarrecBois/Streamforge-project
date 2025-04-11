@@ -1,113 +1,78 @@
-# Creator Match - Take-Home Project
+# Streamforge Intern Project Write-Up
 
-## Overview
+## Modifications to Existing Algorithm
 
-This take-home project asks you to build a "Creator Match" dashboard - a tool that helps brands find suitable gaming influencers for their marketing campaigns across platforms like Twitch, YouTube, and TikTok.
+### Budget Calculation
+Updated the budget fit scoring algorithm to better reflect brand preferences. Previously, creators scored 1 if their rate was anywhere within the budget range. Now, creators score 1 if they’re below budget, and the score linearly decreases to 0.5 as their rate approaches the top of the budget. If a creator exceeds the budget, their score drops below 0.5, reaching 0 as they become increasingly unaffordable. This better rewards cost-efficiency and penalizes overspending.
 
-The project should take a few hours to complete and tests your ability to work with:
-- Vue.js frontend development with Tailwind CSS
-- Node.js backend API implementation
-- Data filtering and processing algorithms
-- UI/UX decision making
+### Content Relevance
+We updated content relevance to focus on how well a creator covers the campaign’s target genres. Previously, creators were penalized for diverse content. Now, the score is based on the proportion of target genres covered, ensuring full credit if campaign requirements are met, even if the creator produces additional content.
 
-## Project Requirements
+### Audience Fit
+Demographic fit was updated to use a 70/30 weight split between age and gender. Age is generally more influential in marketing and targeting strategies, so this change better aligns with typical campaign priorities.
 
-### Core Features
+### Engagement Quality
+Two updates were made:
+- The follower normalization cap was lowered to 1 million.
+- A logarithmic scale was applied to engagement rate normalization, modeling diminishing returns and rewarding moderate engagement improvements more than marginal ones.
 
-1. **Creator Filtering Interface:**
-   - Design and implement a filtering sidebar from scratch
-   - Allow filtering creators by platform (Twitch, YouTube, TikTok)
-   - Filter by follower count range
-   - Filter by content categories (FPS, MOBA, RPG, etc.)
-   - Sort by match score or follower count
-   - Implement additional filters (regions, verified status, etc.)
+### Previous Performance
+This metric remains unchanged. A future improvement could include applying a non-linear transformation (e.g., squaring the score) to increase differentiation between creators.
 
-2. **Campaign Configuration:**
-   - Use the existing campaign settings form
-   - Connect the settings to the backend API for match score calculations
-   - Ensure the UI reflects changes in match scores when settings are updated
+## Additional Features for Match Score Algorithm
 
-3. **Creator Match Algorithm:**
-   - Analyze the existing algorithm implementation
-   - Suggest and implement improvements to the algorithm
-   - Optimize for different campaign objectives
+### Region Fit
+A new region alignment score rewards creators whose location matches campaign target regions (e.g., US, EU, APAC). Locations are mapped from subregions (e.g., "US-East") to broad categories for simplicity.
 
-4. **Creator Card Design:**
-   - Design and implement the creator card component from scratch
-   - Display critical information that would matter to marketers
-   - Create a visually appealing and informative layout
-   - Show the calculated match score prominently
+### Content Format Relevance
+This score evaluates alignment between a creator’s content formats and campaign preferences (e.g., short clips, tutorials). Formats are grouped into categories like "Short-form" or "Educational" to improve usability.
 
-5. **Future Improvements:**
-   - In your submission, include a section describing what you would add or improve given more time
-   - Consider features, UX improvements, or technical enhancements
+### Weighting by Campaign Objective
+Each campaign objective (e.g., Brand Awareness, Conversion) uses a different set of score weights, prioritizing the most relevant factors.
 
-## Technical Requirements
+### Customizable Weighting with Sliders
+When "Custom Weighting" is selected, users can adjust sliders for each match score factor. On the backend, weights are automatically normalized so they don’t need to manually sum to 1.
 
-### Frontend
-- Use the provided Vue.js skeleton with Vite
-- TailwindCSS is pre-configured
-- Design and implement the filter sidebar component from scratch
-- Design and implement the creator card component from scratch
-- Keep the UI responsive and user-friendly
-- Implement proper state management for filters and campaign settings
+## Frontend Notes
 
-### Backend
-- The backend API endpoints are already implemented
-- Review and understand the match score algorithm implementation
-- Suggest improvements to the algorithm based on different campaign types
+### Campaign Settings Structure
+The frontend now sends `targetRegions` and `targetFormats` to the backend, allowing for region- and content-specific targeting. The backend maps subregions and formats into broader groups to maintain flexibility without complexity.
 
-## Getting Started
+## Creator Card Component
 
-1. The `/frontend` directory contains a Vue.js Vite application
-2. The `/backend` directory contains a Node.js Express server
-3. The `/data` directory contains sample creator data
+### Visual Clarity
+Match score is visually emphasized using a labeled percentage and a colored progress bar (green/yellow/red). Background color is set by platform (YouTube, Twitch, TikTok), and platform icons replace plain text.
 
-### Running the Frontend
-```
-cd frontend
-npm install
-npm run dev
-```
+### Responsive Design
+Tailwind utility classes ensure the layout is clean and responsive across screen sizes.
 
-### Running the Backend
-```
-cd backend
-npm install
-npm start
-```
+## Expandable Creator Cards
+Clicking a creator card reveals additional details: region, average viewers, hourly rate, verified status, and content formats. This supports deeper evaluation without cluttering the initial view.
 
-## Evaluation Criteria
+## UI and Readability Improvements
+- Filter sidebar uses collapsible dropdowns to reduce clutter.
+- Creator card layouts were refined for consistency.
+- Buttons, dropdowns, and visual elements were unified for a more polished look.
 
-Your submission will be evaluated based on:
+## Filter Component
 
-1. **Code Quality**
-   - Clean, readable, and well-organized code
-   - Proper component structure and reusability
-   - Effective use of Vue.js and Node.js patterns
+Implemented filters for:
+- Platform
+- Content category
+- Follower range
+- Region
+- Verified status
+- Minimum engagement rate
 
-2. **Functionality**
-   - Correct implementation of the match score algorithm
-   - Working filters and sorting
-   - Proper frontend-backend integration
+These are passed to the backend via query parameters and dynamically update the results.
 
-3. **UI/UX**
-   - Intuitive interface
-   - Responsive design
-   - Quality of your creator card design
-   - Thoughtful component layouts
+## Future Improvements
 
-4. **Creativity**
-   - Novel approaches to UI challenges
-   - Quality of your future improvements suggestions
-   - Extensions beyond the base requirements
+### Mobile Optimization Testing
+Although responsive Tailwind classes are used, the dashboard needs more extensive testing on physical devices. Improvements may include collapsing sidebars, refining spacing, and enhancing touch interaction support.
 
-## Submission
+### Stakeholder Feedback & Iteration
+User testing and stakeholder reviews would help prioritize UI and UX improvements—especially copy, navigation, and filtering workflows.
 
-Please submit via email:
-1. Your complete codebase (excluding node_modules)
-2. A brief write-up explaining your approach and any decisions/tradeoffs you made
-3. A section on potential future improvements you would make to the project
-4. Instructions for running your solution if different from what's provided
-
-Good luck!
+### Migration to VueShadCN Components
+VueShadCN components weren’t used in this project due to late discovery and time constraints. For a production version, I would replace major UI components with VueShadCN alternatives for improved accessibility and design consistency.
