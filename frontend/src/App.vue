@@ -10,6 +10,8 @@ import CampaignSettings from './components/CampaignSettings.vue';
 
 // State
 const creators = ref([]);
+const allCreators = ref([]);
+const selectedTab = ref('filters');
 const filters = ref({
   platforms: [],
   categories: [],
@@ -26,13 +28,13 @@ const sortDirection = ref('desc');
 // Derived data
 const availablePlatforms = computed(() => {
   const platforms = new Set();
-  creators.value.forEach(creator => platforms.add(creator.platform));
+  allCreators.value.forEach(creator => platforms.add(creator.platform));
   return Array.from(platforms);
 });
 
 const availableCategories = computed(() => {
   const categories = new Set();
-  creators.value.forEach(creator => {
+  allCreators.value.forEach(creator => {
     creator.contentCategories.forEach(category => categories.add(category));
   });
   return Array.from(categories);
@@ -44,16 +46,11 @@ const filteredCreators = computed(() => {
 });
 
 const sortedCreators = computed(() => {
-  // Sort creators based on the selected sorting criteria
   return [...filteredCreators.value].sort((a, b) => {
     const aValue = a[sortBy.value];
     const bValue = b[sortBy.value];
-    
-    if (sortDirection.value === 'asc') {
-      return aValue - bValue;
-    } else {
-      return bValue - aValue;
-    }
+
+    return sortDirection.value === 'asc' ? aValue - bValue : bValue - aValue;
   });
 });
 
@@ -61,9 +58,28 @@ const sortedCreators = computed(() => {
 async function updateFilters(newFilters) {
   filters.value = { ...filters.value, ...newFilters };
   try {
-    // Placeholder for the API call that would use these filters
-    // In the completed project, the intern will implement this
-    console.log('New filters:', filters.value);
+    const params = new URLSearchParams();
+
+    if (filters.value.platforms.length) {
+      filters.value.platforms.forEach(p => params.append('platforms', p));
+    }
+    if (filters.value.categories.length) {
+      filters.value.categories.forEach(c => params.append('categories', c));
+    }
+    if (filters.value.followerRange.length === 2) {
+      params.append('followerRange', filters.value.followerRange[0]);
+      params.append('followerRange', filters.value.followerRange[1]);
+    }
+
+    const response = await axios.get(`http://localhost:3000/api/creators/filter?${params.toString()}`);
+    creators.value = response.data;
+
+    const matchResponse = await axios.post(`http://localhost:3000/api/match`, {
+      ...campaignSettings.value,
+      creators: response.data
+    });
+
+    creators.value = matchResponse.data;
   } catch (error) {
     console.error('Error applying filters:', error);
   }
@@ -72,11 +88,12 @@ async function updateFilters(newFilters) {
 async function updateCampaignSettings(newSettings) {
   campaignSettings.value = { ...campaignSettings.value, ...newSettings };
   try {
-    // Call the match API with the updated campaign settings
-    const response = await axios.post('http://localhost:3000/api/match', campaignSettings.value);
+    const response = await axios.post('http://localhost:3000/api/match', {
+      ...campaignSettings.value,
+      creators: creators.value
+    });
     creators.value = response.data;
   } catch (error) {
-    //console.error('Error updating match scores:', error);
     console.error('Error updating match scores:', error.response?.data || error.message || error);
   }
 }
@@ -91,13 +108,13 @@ function resetFilters() {
     categories: [],
     followerRange: [0, 2000000],
   };
+  creators.value = allCreators.value;
 }
 
-// Lifecycle
 onMounted(async () => {
   try {
-    // Fetch creators from API
     const response = await axios.post('http://localhost:3000/api/match', campaignSettings.value);
+    allCreators.value = response.data;
     creators.value = response.data;
   } catch (error) {
     console.error('Error fetching creators:', error);
@@ -108,22 +125,48 @@ onMounted(async () => {
 <template>
   <div class="flex flex-col min-h-screen">
     <AppHeader />
-    
+
     <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <div class="flex flex-col md:flex-row gap-6">
-        <!-- Sidebar with filters -->
+        <!-- Sidebar with toggle tabs -->
         <div class="w-full md:w-1/3 lg:w-1/4">
-          <FilterSidebar 
-            :platforms="availablePlatforms"
-            :categories="availableCategories"
-            @filter-change="updateFilters"
-          />
-          
-          <div class="mt-6">
-            <CampaignSettings @settings-change="updateCampaignSettings" />
+          <!-- Tab Controls (Filters vs Campaign Settings)-->
+          <div class="mb-4 flex border-b border-grey-300">
+            <button
+              @click="selectedTab = 'filters'"
+              :class="[
+                'flex-1 px-4 py-2 text-sm font-medium text-center rounded-t-lg',
+                selectedTab === 'filters' ? 'bg-white text-gray-900 shadow-sm' : 'bg-gray-100 text-gray-500'
+              ]">
+              Filters
+            </button>
+            <button
+              @click="selectedTab = 'campaign'"
+              :class="[
+                'flex-1 px-4 py-2 text-sm font-medium text-center rounded-t-lg',
+                selectedTab === 'campaign' ? 'bg-white text-gray-900 shadow-sm' : 'bg-gray-100 text-gray-500'
+              ]">
+              Campaign Settings
+            </button>
+          </div>
+
+          <!-- Tab Content -->
+          <div>
+            <FilterSidebar
+              v-if="selectedTab === 'filters'"
+              :platforms="availablePlatforms"
+              :categories="availableCategories"
+              :followerRange="filters.followerRange"
+              @filter-change="updateFilters"
+            />
+
+            <CampaignSettings
+              v-if="selectedTab === 'campaign'"
+              @settings-change="updateCampaignSettings"
+            />
           </div>
         </div>
-        
+
         <!-- Main content area -->
         <div class="w-full md:w-2/3 lg:w-3/4">
           <div class="mb-4 flex justify-between items-center">
@@ -139,16 +182,16 @@ onMounted(async () => {
               </button>
             </div>
           </div>
-          
+
           <!-- Creator cards grid -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <CreatorCard 
-              v-for="creator in sortedCreators" 
-              :key="creator.id" 
+            <CreatorCard
+              v-for="creator in sortedCreators"
+              :key="creator.id"
               :creator="creator"
             />
           </div>
-          
+
           <!-- Empty state -->
           <div v-if="sortedCreators.length === 0" class="text-center p-12 border rounded-lg">
             <p class="text-lg text-gray-500">No creators match your filters</p>
@@ -157,7 +200,7 @@ onMounted(async () => {
         </div>
       </div>
     </main>
-    
+
     <footer class="bg-gray-800 text-white p-4 text-center">
       <p>Creator Match Dashboard</p>
     </footer>

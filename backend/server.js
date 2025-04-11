@@ -79,8 +79,10 @@ app.post('/api/match', (req, res) => {
   // Implementation of the match score calculation algorithm
   const campaignSettings = req.body;
   
-  // Calculate match scores for all creators
-  const creatorsWithScores = creatorsData.map(creator => {
+  // Calculate match scores for only the creators that were passed (potentially after filtering)
+  const creatorsToScore = Array.isArray(campaignSettings.creators) ? campaignSettings.creators : creatorsData;
+
+  const creatorsWithScores = creatorsToScore.map(creator => {
     const matchScore = calculateMatchScore(creator, campaignSettings);
     return {
       ...creator,
