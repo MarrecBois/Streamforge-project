@@ -23,6 +23,10 @@ const filters = ref({
 const campaignSettings = ref({
   budget: [100, 500],
   targetGenres: [],
+  targetAgeGroups: [],
+  targetGenders: [],
+  targetRegions: [],
+  targetFormats: [],
   duration: 30,
   campaignObjective: 'brand_awareness',
   customWeights: {
@@ -37,6 +41,15 @@ const campaignSettings = ref({
 });
 const sortBy = ref('matchScore');
 const sortDirection = ref('desc');
+
+const sortOptions = [
+  { value: 'matchScore', label: 'Match Score' },
+  { value: 'followers', label: 'Followers' },
+  { value: 'engagementRate', label: 'Engagement Rate' },
+  { value: 'avgViewers', label: 'Average Viewers' },
+  { value: 'hourlyRate', label: 'Hourly Rate' },
+  { value: 'previousCampaignPerformance', label: 'Previous Campaign Performance' },
+];
 
 // Derived data
 const availablePlatforms = computed(() => {
@@ -55,7 +68,7 @@ const availableCategories = computed(() => {
 
 const filteredCreators = computed(() => {
   // Filtering is now handled by the backend API
-  return creators.value;
+  return creators.value
 });
 
 const availableRegions = computed(() => {
@@ -134,6 +147,7 @@ function toggleSortDirection() {
   sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
 }
 
+// Reset the filters to their default values
 async function resetFilters() {
   filters.value = {
     platforms: [],
@@ -198,6 +212,7 @@ onMounted(async () => {
           <div>
             <FilterSidebar
               v-if="selectedTab === 'filters'"
+              :filters="filters"
               :platforms="availablePlatforms"
               :categories="availableCategories"
               :followerRange="filters.followerRange"
@@ -209,6 +224,7 @@ onMounted(async () => {
 
             <CampaignSettings
               v-if="selectedTab === 'campaign'"
+              :settings="campaignSettings"
               @settings-change="updateCampaignSettings"
             />
           </div>
@@ -220,9 +236,9 @@ onMounted(async () => {
             <h2 class="text-xl font-bold">Creators ({{ filteredCreators.length }})</h2>
             <div class="flex gap-2">
               <select v-model="sortBy" class="select w-40">
-                <option value="matchScore">Match Score</option>
-                <option value="followers">Followers</option>
-                <option value="engagementRate">Engagement</option>
+                <option v-for="option in sortOptions" :key="option.value" :value="option.value">
+                  {{ option.label }}
+                </option>
               </select>
               <button @click="toggleSortDirection" class="btn btn-outline">
                 {{ sortDirection === 'desc' ? '↓' : '↑' }}

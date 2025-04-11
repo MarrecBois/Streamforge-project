@@ -1,7 +1,8 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, toRefs } from 'vue';
 
 const props = defineProps({
+  filters : Object,
   platforms: {
     type: Array,
     default: () => []
@@ -13,47 +14,38 @@ const props = defineProps({
   followerRange: {
     type: Array,
     default: () => [0, 2000000]
-  }
+  },
+  region: {
+    type: Array,
+    default: () => []
+  },
+  verifiedOnly: {
+    type: Boolean,
+    default: false
+  },
+  engagementRateMin: {
+    type: Number,
+    default: 0
+  },
 });
 
 const emit = defineEmits(['filter-change']);
 
-const selectedPlatforms = ref([]);
-const selectedCategories = ref([]);
-const followerMin = ref(props.followerRange[0]);
-const followerMax = ref(props.followerRange[1]);
-const selectedRegions = ref([]);
-const verifiedOnly = ref(false);
-const engagementRateMin = ref(0);
+const filters = props.filters;
+
 const activeDropdown = ref(null);
 
-watch(
-  () => props.followerRange,
-  (newRange) => {
-    followerMin.value = newRange[0];
-    followerMax.value = newRange[1];
-  }
-);
-
 function applyFilters() {
-  emit('filter-change', {
-    platforms: selectedPlatforms.value,
-    categories: selectedCategories.value,
-    followerRange: [followerMin.value, followerMax.value],
-    regions: selectedRegions.value,
-    verifiedOnly: verifiedOnly.value,
-    engagementRateMin: engagementRateMin.value
-  });
+  emit('filter-change', { ...filters });
 }
 
 function resetFilters() {
-  selectedPlatforms.value = [];
-  selectedCategories.value = [];
-  selectedRegions.value = [];
-  verifiedOnly.value = false;
-  engagementRateMin.value = 0;
-  followerMin.value = 0;
-  followerMax.value = 2000000;
+  props.filters.platforms = [];
+  props.filters.categories = [];
+  props.filters.followerRange = [0, 2000000];
+  props.filters.regions = [];
+  props.filters.verifiedOnly = false;
+  props.filters.engagementRateMin = 0;
   applyFilters();
 }
 
@@ -84,7 +76,7 @@ const allRegions = [
             <input 
               type="checkbox" 
               :value="platform" 
-              v-model="selectedPlatforms"
+              v-model="filters.platforms"
               class="w-4 h-4 text-brand-purple focus:ring-brand-purple"
             >
             <span>{{ platform }}</span>
@@ -100,7 +92,7 @@ const allRegions = [
             <label class="text-sm">Min</label>
             <input 
               type="number" 
-              v-model.number="followerMin"
+              v-model.number="filters.followerRange[0]"
               min="0"
               class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple"
             >
@@ -109,7 +101,7 @@ const allRegions = [
             <label class="text-sm">Max</label>
             <input 
               type="number" 
-              v-model.number="followerMax"
+              v-model.number="filters.followerRange[1]"
               min="0"
               class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple"
             >
@@ -127,7 +119,7 @@ const allRegions = [
             class="w-full flex justify-between items-center border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-purple"
           >
             <span>
-              {{ selectedCategories.length ? selectedCategories.join(', ') : 'Select Categories' }}
+              {{ filters.categories.length ? filters.categories.join(', ') : 'Select Categories' }}
             </span>
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -147,7 +139,7 @@ const allRegions = [
                 <input
                   type="checkbox"
                   :value="category"
-                  v-model="selectedCategories"
+                  v-model="filters.categories"
                   class="w-4 h-4 text-brand-purple"
                 >
                 <span class="text-sm">{{ category }}</span>
@@ -167,7 +159,7 @@ const allRegions = [
             class="w-full flex justify-between items-center border border-gray-300 rounded-md px-3 py-2 text-sm bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-purple"
           >
             <span>
-              {{ selectedRegions.length ? selectedRegions.join(', ') : 'Select Regions' }}
+              {{ filters.regions.length ? filters.regions.join(', ') : 'Select Regions' }}
             </span>
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -187,7 +179,7 @@ const allRegions = [
                 <input
                   type="checkbox"
                   :value="region"
-                  v-model="selectedRegions"
+                  v-model="filters.regions"
                   class="w-4 h-4 text-brand-purple"
                 >
                 <span class="text-sm">{{ region }}</span>
@@ -203,7 +195,7 @@ const allRegions = [
         <label class="flex items-center space-x-2">
           <input 
             type="checkbox" 
-            v-model="verifiedOnly"
+            v-model="filters.verifiedOnly"
             class="w-4 h-4 text-brand-purple focus:ring-brand-purple"
           >
           <span>Only show verified creators</span>
@@ -215,8 +207,9 @@ const allRegions = [
         <h4 class="font-medium mb-2">Minimum Engagement Rate (%)</h4>
         <input 
           type="number"
-          v-model.number="engagementRateMin"
+          v-model.number="filters.engagementRateMin"
           min="0"
+          max="100"
           step="0.1"
           class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple"
         >

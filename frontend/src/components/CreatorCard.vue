@@ -179,6 +179,7 @@ function toggleExpand() {
         <p><strong>Hourly Rate:</strong> ${{ creator.hourlyRate }}</p>
         <p><strong>Content Formats:</strong> {{ creator.contentFormats.join(', ') }}</p>
         <p><strong>Sponsorship History:</strong> {{ creator.sponsorshipHistory.join(', ') }}</p>
+        <p><strong>Previous Campaign Performance Score:</strong> {{ creator.previousCampaignPerformance }}%</p>
       </div>
     </transition>
   </div>
